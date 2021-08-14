@@ -1,0 +1,221 @@
+
+{LABEL TOP}
+
+{REPLACE}
+0
+(zero)
+{REPLACE}
+1
+(one)
+
+{REPLACE}
+,(zero)
+,(zero after comma)
+{IF SUCCESSFUL JUMP TOP}
+{REPLACE}
+,(one)
+,(one after comma)
+{IF SUCCESSFUL JUMP TOP}
+
+{REPLACE FOREVER}
+after comma)(zero)
+after comma)(zero after comma)
+{IF SUCCESSFUL JUMP TOP}
+{REPLACE FOREVER}
+after comma)(one)
+after comma)(one after comma)
+{IF SUCCESSFUL JUMP TOP}
+
+{REPLACE}
+ after comma)(zero after comma)
+ after comma)(not end)(zero after comma)
+{REPLACE}
+ after comma)(one after comma)
+ after comma)(not end)(one after comma)
+
+{REPLACE}
+ after comma)
+ after comma)(maybe end)
+{REPLACE}
+(maybe end)(not end)
+{BLANK LINE}
+{REPLACE}
+(maybe end)
+(end)
+
+{REPLACE}
+ after comma)
+)
+
+{JUMP MAIN}
+
+
+{LABEL DO_DECREMENT}
+
+//prep
+{REPLACE FOREVER}
+,(zero)
+,
+{REPLACE}
+,(end)
+,(zero)(end)(ended from within dodecrement prep)
+{IF SUCCESSFUL JUMP STOP_DO_DECREMENT}
+
+{REPLACE}
+,(decrement left number)
+,
+{IF SUCCESSFUL JUMP TRANSFER}
+{REPLACE}
+(decrement left number)
+(decrement left bit to decrement left number)
+
+  //this is apparently important.
+{REPLACE}
+(one)(decrement left bit to decrement left number)
+(zero)
+{IF SUCCESSFUL JUMP TRANSFER}
+
+{REPLACE ONCE}
+(zero)(decrement left bit to decrement left number)
+(decrement left bit to decrement surrounding number)(zero)
+{REPLACE FOREVER}
+(zero)(decrement left bit to decrement surrounding number)
+(decrement left bit to decrement surrounding number)(zero)
+
+{REPLACE}
+(one)(decrement left bit to decrement surrounding number)
+(zero)(invert right bits)
+{IF SUCCESSFUL JUMP DO_DECREMENT}
+  //that jump is to repeat prep step.
+
+{LABEL DO_DECREMENT_INVERT}
+{REPLACE FOREVER}
+(invert right bits)(zero)
+(one)(invert right bits)
+{IF SUCCESSFUL JUMP DO_DECREMENT_INVERT}
+{REPLACE FOREVER}
+(invert right bits)(one)
+(zero)(invert right bits)
+{IF SUCCESSFUL JUMP DO_DECREMENT_INVERT}
+{REPLACE}
+(invert right bits)
+{BLANK LINE}
+  //risky
+
+//{FIND}
+//(zero)(decrement left bit to decrement surrounding number)
+//{IF SUCCESSFUL JUMP TRANSFER}
+//{FIND}
+//(one)(decrement left bit to decrement surrounding number)
+//{IF SUCCESSFUL JUMP TRANSFER}
+
+{REPLACE}
+(end)
+(end)(error)(dodecrement probably should not have ended)
+
+{JUMP TRANSFER}
+
+
+{LABEL DO_INCREMENT}
+
+{REPLACE}
+(zero)(increment left number)
+(one)
+{IF SUCCESSFUL JUMP TRANSFER}
+
+{REPLACE}
+(one)(increment left number)
+(increment left number)(invert right bits)(one)
+{IF SUCCESSFUL JUMP DO_INCREMENT}
+
+{REPLACE FOREVER}
+(invert right bits)(zero)(zero)
+(invert right bit)(zero)(invert right bits)(zero)
+{REPLACE FOREVER}
+(invert right bits)(zero)(one)
+(invert right bit)(zero)(invert right bits)(one)
+{REPLACE FOREVER}
+(invert right bits)(one)(zero)
+(invert right bit)(one)(invert right bits)(zero)
+{REPLACE FOREVER}
+(invert right bits)(one)(one)
+(invert right bit)(one)(invert right bits)(one)
+
+{REPLACE}
+(invert right bits)
+(invert right bit)
+{REPLACE}
+(invert right bit)(zero)
+(one)
+{REPLACE}
+(invert right bit)(one)
+(zero)
+
+{JUMP TRANSFER}
+
+
+{LABEL TRANSFER}
+
+{REPLACE}
+(zero)(increment variable a)
+(increment variable a)(zero)
+{IF SUCCESSFUL JUMP TRANSFER}
+{REPLACE}
+(one)(increment variable a)
+(increment variable a)(one)
+{IF SUCCESSFUL JUMP TRANSFER}
+
+{REPLACE ONCE}
+,(increment variable a)
+(increment left number),
+{IF SUCCESSFUL JUMP DO_INCREMENT}
+
+{REPLACE}
+(decrement left number after transfer)
+(decrement left number)
+{IF SUCCESSFUL JUMP DO_DECREMENT}
+
+{JUMP MAIN}
+
+
+{LABEL MAIN}
+
+{REPLACE}
+,(zero)(end)
+,(zero)(end)(finished)
+{IF SUCCESSFUL JUMP STOP_MAIN}
+
+{JUMP INITIATE_TRANSFER}
+
+
+{LABEL INITIATE_TRANSFER}
+
+{REPLACE}
+(zero)(end)
+(increment variable a)(zero)(decrement left number after transfer)(end)(note that decrement has started near zero)
+{REPLACE}
+(one)(end)
+(increment variable a)(one)(decrement left number after transfer)(end)(note that decrement has started near one)
+                                         //one of these should always be successful the first time. if it isn't, the task must be resuming.
+{JUMP TRANSFER}
+
+
+
+{LABEL STOP}
+
+{JUMP STOP}
+
+
+{LABEL STOP_MAIN}
+
+{JUMP STOP_MAIN}
+
+
+{LABEL STOP_DO_DECREMENT}
+
+{JUMP STOP_DO_DECREMENT}
+
+
+{LABEL UNREACHABLE}
+
+{JUMP UNREACHABLE}

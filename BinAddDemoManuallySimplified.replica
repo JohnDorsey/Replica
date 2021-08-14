@@ -1,0 +1,203 @@
+
+{LABEL TOP}
+
+{REPLACE FOREVER}
+{START COMMENT SYMBOL}{END COMMENT SYMBOL}
+{BLANK LINE}
+{REPLACE ONCE}
+{START COMMENT SYMBOL}{MATCH ANY ONE CHAR}
+{START COMMENT SYMBOL}
+{IF SUCCESSFUL JUMP TOP}
+
+{REPLACE}
+0
+(zero)
+{REPLACE}
+1
+(one)
+
+{REPLACE}
+,(zero)
+,(zero after comma)
+{IF SUCCESSFUL JUMP TOP}
+{REPLACE}
+,(one)
+,(one after comma)
+{IF SUCCESSFUL JUMP TOP}
+
+{REPLACE FOREVER}
+after comma)(zero)
+after comma)(zero after comma)
+{IF SUCCESSFUL JUMP TOP}
+{REPLACE FOREVER}
+after comma)(one)
+after comma)(one after comma)
+{IF SUCCESSFUL JUMP TOP}
+
+{REPLACE}
+ after comma)(zero after comma)
+ after comma)(not end)(zero after comma)
+{REPLACE}
+ after comma)(one after comma)
+ after comma)(not end)(one after comma)
+
+{REPLACE}
+ after comma)
+ after comma)(maybe end)
+{REPLACE}
+(maybe end)(not end)
+{BLANK LINE}
+{REPLACE}
+(maybe end)
+(end)
+
+{JUMP MAIN}
+
+
+{LABEL DO_DECREMENT}
+
+{REPLACE}
+after comma)(decrement left number)
+after comma)(decrement left bit to decrement left number)
+
+{REPLACE}
+(one after comma)(decrement left bit to decrement left number)
+(zero after comma)
+{IF SUCCESSFUL JUMP TRANSFER}
+
+{REPLACE FOREVER}
+(zero after comma)(decrement left bit to decrement left number)
+(decrement left bit to decrement surrounding number)(zero after comma)
+{REPLACE FOREVER}
+(zero after comma)(decrement left bit to decrement surrounding number)
+(decrement left bit to decrement surrounding number)(zero after comma)
+
+{REPLACE}
+(one after comma)(decrement left bit to decrement surrounding number)
+(zero after comma)(invert right bits)
+
+{LABEL DO_DECREMENT_INVERT}
+{REPLACE FOREVER}
+(invert right bits)(zero after comma)
+(one after comma)(invert right bits)
+{IF SUCCESSFUL JUMP DO_DECREMENT_INVERT}
+{REPLACE FOREVER}
+(invert right bits)(one after comma)
+(zero after comma)(invert right bits)
+{IF SUCCESSFUL JUMP DO_DECREMENT_INVERT}
+{REPLACE}
+after comma)(invert right bits)
+after comma)
+  //only match an (invert right bits) that really belongs to do_decrement.
+
+{FIND}
+(zero after comma)(decrement left bit to decrement surrounding number)
+{IF SUCCESSFUL JUMP TRANSFER}
+{FIND}
+(one after comma)(decrement left bit to decrement surrounding number)
+{IF SUCCESSFUL JUMP TRANSFER}
+
+{REPLACE}
+(end)
+(end)(error)(dodecrement probably should not have ended)
+
+{JUMP TRANSFER}
+
+
+{LABEL DO_INCREMENT}
+
+{REPLACE}
+(zero)(increment left number)
+(one)
+{IF SUCCESSFUL JUMP TRANSFER}
+
+{REPLACE}
+(one)(increment left number)
+(increment left number)(invert right bits)(one)
+{IF SUCCESSFUL JUMP DO_INCREMENT}
+
+{REPLACE FOREVER}
+(invert right bits)(zero)(zero)
+(invert right bit)(zero)(invert right bits)(zero)
+{REPLACE FOREVER}
+(invert right bits)(zero)(one)
+(invert right bit)(zero)(invert right bits)(one)
+{REPLACE FOREVER}
+(invert right bits)(one)(zero)
+(invert right bit)(one)(invert right bits)(zero)
+{REPLACE FOREVER}
+(invert right bits)(one)(one)
+(invert right bit)(one)(invert right bits)(one)
+
+{REPLACE}
+(invert right bits)
+(invert right bit)
+{REPLACE}
+(invert right bit)(zero)
+(one)
+{REPLACE}
+(invert right bit)(one)
+(zero)
+
+{JUMP TRANSFER}
+
+
+{LABEL TRANSFER}
+
+{REPLACE}
+(zero after comma)(increment variable a)
+(increment variable a)(zero after comma)
+{IF SUCCESSFUL JUMP TRANSFER}
+{REPLACE}
+(one after comma)(increment variable a)
+(increment variable a)(one after comma)
+{IF SUCCESSFUL JUMP TRANSFER}
+
+{REPLACE ONCE}
+,(increment variable a)
+(increment left number),
+{IF SUCCESSFUL JUMP DO_INCREMENT}
+
+{REPLACE}
+(decrement left number after transfer)
+(decrement left number)
+{IF SUCCESSFUL JUMP DO_DECREMENT}
+
+{JUMP MAIN}
+
+
+{LABEL MAIN}
+
+{REPLACE}
+,(zero after comma)(end)
+,(zero after comma)(end)(finished)
+{IF SUCCESSFUL JUMP STOP}
+
+{JUMP INITIATE_TRANSFER}
+
+
+{LABEL INITIATE_TRANSFER}
+
+{REPLACE}
+(zero after comma)(end)
+(increment variable a)(zero after comma)(decrement left number after transfer)(end)
+{REPLACE}
+(one after comma)(end)
+(increment variable a)(one after comma)(decrement left number after transfer)(end)
+                                         //one of these should always be successful the first time. if it isn't, the task must be resuming.
+{JUMP TRANSFER}
+
+
+
+{LABEL SET_ERROR}
+
+{REPLACE}
+(end)
+(end)(error)
+
+{JUMP STOP}
+
+
+{LABEL STOP}
+
+{JUMP STOP}

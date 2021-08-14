@@ -1,0 +1,165 @@
+
+{LABEL TOP}
+
+{REPLACE NEXTLINE WITH NEXTNEXTLINE FOREVER}
+{START COMMENT SYMBOL}{END COMMENT SYMBOL}
+{BLANK LINE}
+{REPLACE NEXTLINE WITH NEXTNEXTLINE ONCE}
+{START COMMENT SYMBOL}{MATCH ANY ONE CHAR}
+{START COMMENT SYMBOL}
+{IF SUCCESSFUL JUMP TOP}
+
+{REPLACE NEXTLINE WITH NEXTNEXTLINE}
+0
+(zero)
+{REPLACE NEXTLINE WITH NEXTNEXTLINE}
+1
+(one)
+
+{REPLACE NEXTLINE WITH NEXTNEXTLINE}
+,(zero)
+,(zero after comma)
+{IF SUCCESSFUL JUMP TOP}
+{REPLACE NEXTLINE WITH NEXTNEXTLINE}
+,(one)
+,(one after comma)
+{IF SUCCESSFUL JUMP TOP}
+
+{REPLACE NEXTLINE WITH NEXTNEXTLINE FOREVER}
+after comma)(zero)
+after comma)(zero after comma)
+{IF SUCCESSFUL JUMP TOP}
+{REPLACE NEXTLINE WITH NEXTNEXTLINE FOREVER}
+after comma)(one)
+after comma)(one after comma)
+{IF SUCCESSFUL JUMP TOP}
+
+{REPLACE NEXTLINE WITH NEXTNEXTLINE}
+({MATCH <zero|one>} after comma)({MATCH <zero|one>} after comma)
+({MAINTAIN} after comma)(not end)({MAINTAIN} after comma)
+{REPLACE NEXTLINE WITH NEXTNEXTLINE}
+({MATCH <zero|one>} after comma)
+({MAINTAIN} after comma)(maybe end)
+{REPLACE NEXTLINE WITH NEXTNEXTLINE}
+(maybe end)(not end)
+{BLANK LINE}
+{REPLACE NEXTLINE WITH NEXTNEXTLINE}
+(maybe end)
+(end)
+
+{JUMP MAIN}
+
+
+{LABEL DO_DECREMENT}
+
+{REPLACE NEXTLINE WITH NEXTNEXTLINE}
+after comma)(decrement left number)
+after comma)(decrement left bit to decrement left number)
+
+{REPLACE NEXTLINE WITH NEXTNEXTLINE}
+(one after comma)(decrement left bit to decrement left number)
+(zero after comma)
+{IF SUCCESSFUL JUMP MAIN}
+
+{REPLACE NEXTLINE WITH NEXTNEXTLINE FOREVER}
+(zero after comma)(decrement left bit to decrement {MATCH <left|surrounding>} number)
+(decrement left bit to decrement surrounding number)(zero after comma)
+
+{REPLACE NEXTLINE WITH NEXTNEXTLINE}
+(one after comma)(decrement left bit to decrement surrounding number)
+(zero after comma)(invert right bits)
+
+{LABEL DO_DECREMENT_INVERT}
+{REPLACE NEXTLINE WITH NEXTNEXTLINE FOREVER}
+(invert right bits)(zero after comma)
+(one after comma)(invert right bits)
+{IF SUCCESSFUL JUMP DO_DECREMENT_INVERT}
+{REPLACE NEXTLINE WITH NEXTNEXTLINE FOREVER}
+(invert right bits)(one after comma)
+(zero after comma)(invert right bits)
+{IF SUCCESSFUL JUMP DO_DECREMENT_INVERT}
+{REPLACE NEXTLINE WITH NEXTNEXTLINE}
+(invert right bits)
+{BLANK LINE}
+
+{FIND NEXTLINE}
+{MATCH NOT \(<zero|one> after comma\)}(decrement left bit to decrement surrounding number)
+{IF SUCCESSFUL JUMP SET_ERROR}
+
+{JUMP MAIN}
+
+
+{LABEL DO_INCREMENT}
+
+{REPLACE NEXTLINE WITH NEXTNEXTLINE}
+(zero)(increment left number)
+(one)
+{IF SUCCESSFUL JUMP MAIN}
+
+{REPLACE NEXTLINE WITH NEXTNEXTLINE}
+(one)(increment left number)
+(increment left number)(invert right bits)(one)
+{IF SUCCESSFUL JUMP DO_INCREMENT}
+
+{REPLACE NEXTLINE WITH NEXTNEXTLINE FOREVER}
+(invert right bits)({MATCH <zero|one>})({MATCH <zero|one>})
+(invert right bit)({MAINTAIN})(invert right bits)({MAINTAIN})
+{REPLACE NEXTLINE WITH NEXTNEXTLINE}
+(invert right bits)
+(invert right bit)
+{REPLACE NEXTLINE WITH NEXTNEXTLINE}
+(invert right bit)(zero)
+(one)
+{REPLACE NEXTLINE WITH NEXTNEXTLINE}
+(invert right bit)(one)
+(zero)
+
+{JUMP MAIN}
+
+
+{LABEL TRANSFER}
+
+{REPLACE NEXTLINE WITH NEXTNEXTLINE FOREVER}
+({MATCH ANYTHING})(increment variable a)
+(increment variable a)({MAINTAIN})
+
+{REPLACE NEXTLINE WITH NEXTNEXTLINE ONCE}
+,(increment variable a)
+(increment left number),
+{IF SUCCESSFUL JUMP DO_INCREMENT}
+
+{REPLACE NEXTLINE WITH NEXTNEXTLINE}
+(decrement left number after transfer)
+(decrement left number)
+{IF SUCCESSFUL JUMP DO_DECREMENT}
+
+{JUMP MAIN}  
+
+
+{LABEL MAIN}
+
+{REPLACE NEXTLINE WITH NEXTNEXTLINE}
+,(zero after comma)(end)
+,(zero after comma)(end)(finished)
+{IF SUCCESSFUL JUMP STOP}
+
+{REPLACE NEXTLINE WITH NEXTNEXTLINE}
+({MATCH <zero|one>} after comma)(end)
+(increment variable a)({MAINTAIN} after comma)(decrement left number after transfer)(end)
+                                         //this should always be successful the first time. if it isn't, the task must be resuming.
+{JUMP TRANSFER}
+
+
+
+{LABEL SET_ERROR}
+
+{REPLACE NEXTLINE WITH NEXTNEXTLINE}
+(end)
+(end)(error)
+
+{JUMP STOP}
+
+
+{LABEL STOP}
+
+{JUMP STOP}
