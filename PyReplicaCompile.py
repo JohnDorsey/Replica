@@ -26,6 +26,8 @@ class ReplicaLabelError(ReplicaCompileError):
 class ReplicaSyntaxError(ReplicaCompileError):
   pass
   
+
+  
 def replicaSyntaxAssert(inputBool, message):
   if not inputBool:
     raise ReplicaSyntaxError(message)
@@ -85,15 +87,7 @@ class UnresolvedJump:
     
 UnresolvedLabel = namedtuple("UnresolvedLabel",["name"])
 
-"""
-class ReplicaCompilableText:
-    
-  def isMatch(inputText):
-    pass
-    
-  def compileWithContext(self,inputText,allLines,ownIndex):
-    pass
-"""
+
     
 class ReplicaInstructionCompiler:
     
